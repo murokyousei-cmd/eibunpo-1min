@@ -11,17 +11,18 @@
 <style>
 /* VOICE: 授業の最初の5分に先生が黒板に書く一問。軽く、やさしく、急かさない
    IDEA: 黒板と、そこに書かれた一文
-   PICTURE: スタート画面は黒板そのもの。問題中は問題が黒板に書かれる
-   COLOUR and TYPE: 黒板の深い緑、チョークの白、黄色いチョークを一色だけ。端末の標準ゴシック（通信なしで動かすため外部フォントは使わない）
+   PICTURE: スタート画面は黒板そのもの。問題中は問題が黒板に書かれる。シューティングは黒板の下に流れてくるチョークの言葉
+   COLOUR and TYPE: 黒板の深い緑、チョークの白、黄色いチョークを一色だけ。コンプリートは金。端末の標準ゴシック（通信なしで動かすため外部フォントは使わない）
    LAYOUT: スマホ1列。親指で押せる大きな選択肢を下に縦に並べる */
-/* 古いiPhoneのSafariでも色が出るよう、light-dark() は使わない */
-:root{color-scheme:light;--bg:#f4f1e8;--board:#1f4536;--chalk:#f3f1ea;--ink:#1b2420;--sub:#55605a;--line:#d6d0bf;--card:#fffdf7;--yel:#f2c94c;--ok:#1f7a4d;--ng:#b0442c}
+/* 古いiPhoneのSafariでも色が出るよう、light-dark() や ?. は使わない */
+:root{color-scheme:light;--bg:#f4f1e8;--board:#1f4536;--chalk:#f3f1ea;--ink:#1b2420;--sub:#55605a;--line:#d6d0bf;--card:#fffdf7;--yel:#f2c94c;--gold:#d9a514;--ok:#1f7a4d;--ng:#b0442c}
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#0f1d17;--board:#173528;--ink:#e9eee9;--sub:#a9b5ad;--line:#2b4236;--card:#152a20;--ok:#5fd39a;--ng:#f08a6e}}
 :root[data-theme=dark]{color-scheme:dark;--bg:#0f1d17;--board:#173528;--ink:#e9eee9;--sub:#a9b5ad;--line:#2b4236;--card:#152a20;--ok:#5fd39a;--ng:#f08a6e}
 *{box-sizing:border-box;min-width:0}
-body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 "Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic",Meiryo,system-ui,sans-serif;overflow-x:clip}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 "Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic",Meiryo,system-ui,sans-serif;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
 .wrap{max-width:560px;margin:0 auto;padding:16px 16px 40px;min-height:100vh;min-height:100svh;display:flex;flex-direction:column}
 .board{background:var(--board);color:var(--chalk);border-radius:14px;padding:22px 20px;box-shadow:inset 0 0 0 6px #6b4a2e,inset 0 0 0 8px #3e2a19,0 6px 18px rgba(0,0,0,.18)}
+.board.gold{box-shadow:inset 0 0 0 6px var(--gold),inset 0 0 0 8px #8a6508,0 6px 18px rgba(0,0,0,.18)}
 .title{font-size:clamp(36px,11vw,48px);font-weight:800;line-height:1.1;margin:0}
 .title .y{color:var(--yel)}
 .sub{margin:8px 0 0;opacity:.85;font-size:15px}
@@ -31,84 +32,189 @@ h2{font-size:17px;margin:24px 2px 10px;color:var(--sub);font-weight:700}
 .unit b{display:block;font-size:20px}
 .unit span{display:block;color:var(--sub);font-size:15px}
 .unit:hover{border-color:var(--yel)}
+.unit.gold{border-color:var(--gold)}
+.medal{color:var(--gold);font-weight:800}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:var(--yel)}
+.unit.gold .bar i,.bar.gold i{background:var(--gold)}
+.back{background:none;border:0;color:var(--sub);font:inherit;font-size:15px;padding:8px 2px;margin:0 0 6px;cursor:pointer;align-self:flex-start;min-height:44px}
+.mode{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;text-align:left;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;font:inherit;cursor:pointer;padding:14px 16px;margin-bottom:10px}
+.mode b{display:block;font-size:20px}
+.mode span{display:block;color:var(--sub);font-size:14px}
+.mode em{font-style:normal;color:var(--sub);font-size:14px;white-space:nowrap;text-align:right}
+.mode:hover{border-color:var(--yel)}
 .btn{display:block;width:100%;min-height:56px;border:0;border-radius:12px;font:inherit;font-size:19px;font-weight:700;cursor:pointer;padding:12px 16px;text-align:center;text-decoration:none}
-.btn:focus-visible,.opt:focus-visible,.unit:focus-visible{outline:3px solid var(--yel);outline-offset:3px}
+.btn:focus-visible,.opt:focus-visible,.unit:focus-visible,.mode:focus-visible,.back:focus-visible{outline:3px solid var(--yel);outline-offset:3px}
 .go{background:var(--yel);color:#1b2420}
 .ghost{background:transparent;color:var(--ink);border:2px solid var(--line);margin-top:10px}
 .top{display:flex;justify-content:space-between;align-items:center;gap:10px;color:var(--sub);font-size:14px;margin:4px 2px 12px}
 .dots{display:flex;gap:6px;flex:none}.dots i{width:10px;height:10px;border-radius:50%;background:var(--line)}
 .dots i.done{background:var(--yel)}.dots i.now{background:var(--ink)}
+.dots i.lost{background:transparent;border:2px solid var(--line)}
 .jp{font-size:16px;opacity:.85;margin:0 0 10px}
 .en{font-size:clamp(23px,6.6vw,32px);font-weight:700;line-height:1.4;margin:0}
 .blank{display:inline-block;min-width:4.2em;border-bottom:3px solid var(--yel);text-align:center;color:var(--yel)}
 .key{text-decoration:underline wavy var(--yel);text-underline-offset:6px;text-decoration-thickness:2px}
 .hint{color:var(--sub);font-size:15px;margin:10px 2px 0}
 .opts{display:grid;gap:10px;margin:18px 0 0}
-.opt{min-height:60px;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;font:inherit;font-size:22px;font-weight:700;cursor:pointer;padding:10px 14px}
+.opt{min-height:60px;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;font:inherit;font-size:22px;font-weight:700;cursor:pointer;padding:10px 14px;touch-action:manipulation}
 .opt.right{border-color:var(--ok);color:var(--ok)}.opt.wrong{border-color:var(--ng);color:var(--ng);text-decoration:line-through}
 .opt:disabled{cursor:default}.opt:disabled:not(.right):not(.wrong){opacity:.45}
 .fb{margin:16px 0 12px;padding:16px;border-radius:12px;background:var(--card);border:2px solid var(--line)}
 .fb b{display:block;font-size:22px;margin-bottom:4px}
 .fb.ok b{color:var(--ok)}.fb.ng b{color:var(--ng)}
 .fb p{margin:0}
+.combo{color:var(--yel);font-weight:800;font-size:15px;margin-left:8px}
 .score{font-size:clamp(44px,14vw,64px);font-weight:800;line-height:1;margin:6px 0 10px}
 .score span{font-size:22px;font-weight:700;opacity:.8}
+.new{display:inline-block;color:#1b2420;background:var(--yel);border-radius:4px;padding:0 8px;font-weight:800;font-size:15px;margin-left:6px}
 .note{color:var(--sub);font-size:14px;margin:14px 2px 0}
+.timer{height:10px;border-radius:5px;background:var(--line);overflow:hidden;flex:1}
+.timer i{display:block;height:100%;background:var(--yel);transform-origin:left}
+.hud{display:flex;align-items:center;gap:12px;margin:4px 2px 12px;color:var(--sub);font-size:15px}
+.hud b{color:var(--ink);font-size:20px}
+.field{position:relative;margin-top:12px;height:clamp(300px,52vh,520px);border-radius:14px;overflow:hidden;background:var(--board);box-shadow:inset 0 0 0 2px rgba(0,0,0,.25);touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.field::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(243,241,234,.25)}
+.word{position:absolute;left:0;top:0;min-height:48px;padding:8px 16px;border-radius:24px;border:2px solid rgba(243,241,234,.75);background:rgba(15,29,23,.55);color:var(--chalk);font:inherit;font-size:21px;font-weight:700;white-space:nowrap;cursor:crosshair;will-change:transform;touch-action:manipulation}
+.word.hit{border-color:var(--yel);color:var(--yel);animation:pop .35s ease-out forwards}
+.word.miss{border-color:var(--ng);color:var(--ng);animation:shake .4s ease-out forwards}
+@keyframes pop{to{opacity:0;scale:1.6}}
+@keyframes shake{20%{translate:-6px 0}40%{translate:6px 0}60%{translate:-4px 0}100%{translate:0 0;opacity:0}}
+.zk{display:grid;gap:8px;margin-top:14px}
+.zk div{border:2px solid var(--line);background:var(--card);border-radius:10px;padding:10px 14px}
+.zk .no{color:var(--sub);font-size:14px}
+.zk .en2{font-weight:700;font-size:18px}
+.zk .en2 u{text-decoration:none;color:var(--ok)}
+.zk .jp2{color:var(--sub);font-size:14px}
+.zk div.not{color:var(--sub);border-style:dashed;background:transparent}
 @media(prefers-reduced-motion:no-preference){.fb{animation:up .25s ease-out}@keyframes up{from{opacity:0;transform:translateY(6px)}}}
 </style>
 </head>
 <body>
 <main class="wrap" id="app"></main>
-<!-- 単元を足すときは、units/ にファイルを作ってここに1行足す -->
+<!-- 単元を足すときは、units/ にファイルを作ってここに1行足す（sw.js の FILES にも足す） -->
 <script src="units/bunkei.js"></script>
 <script src="units/kankei-fukushi.js"></script>
 <script>
 {
 const FEEDBACK_URL = ""; // 感想フォームのURLを入れると、結果画面にボタンが出る
 const BOTH = "どっちもOK";
-const PER_RUN = 5;
-const UNITS = window.UNITS || [];
+const PER_RUN = 5;         // ふつう：1回の問題数
+const TA_SEC = 60;         // タイムアタックの秒数
+const SH_SEC = 60;         // シューティングの秒数
+const SH_LIVES = 3;        // シューティング：まちがえてよい回数
+const KEY = "eibunpo-1min:v1";
+
+// 単元の問題を使いやすい形にそろえる（英文をその問題の名前として使う）
+const UNITS = (window.UNITS || []).map(u => ({
+  id: u.id, name: u.name, desc: u.desc, hint: u.hint, bonusNote: u.bonusNote,
+  q: u.q.map(q => ({ id: q[2], tag: q[0], jp: q[1], en: q[2], ans: q[3], wrong: q[4], note: q[5], key: q[6] })),
+  bonus: (u.bonus || []).map(b => ({ tag: "チャレンジ", jp: "", en: b[0], choices: b[1], ans: b[2], note: b[3], key: b[4] }))
+}));
+
+// この端末の中だけに残す記録（名前は持たない。消えても遊べる）
+let DATA = {};
+try { DATA = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { DATA = {}; }
+if (!DATA.got) DATA.got = {};
+if (!DATA.best) DATA.best = {};
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(DATA)); } catch (e) {} };
+const gotList = u => DATA.got[u.id] || (DATA.got[u.id] = []);
+const gotCount = u => { const g = gotList(u); return u.q.filter(q => g.indexOf(q.id) >= 0).length; };
+const complete = u => gotCount(u) === u.q.length;
+const collect = (u, q) => { const g = gotList(u); if (g.indexOf(q.id) < 0) { g.push(q.id); save(); } };
+const best = (u, k) => (DATA.best[u.id] && DATA.best[u.id][k]) || 0;
+const setBest = (u, k, v) => { if (!DATA.best[u.id]) DATA.best[u.id] = {}; if (v > best(u, k)) { DATA.best[u.id][k] = v; save(); return true; } return false; };
 
 const app = document.getElementById("app");
-const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const bar = (n, total, gold) => { const b = el("div", "bar" + (gold ? " gold" : "")); const i = el("i"); i.style.width = Math.round(n / total * 100) + "%"; b.append(i); return b; };
+const backBtn = (label, fn) => { const b = el("button", "back", "← " + label); b.onclick = fn; return b; };
 let S = {};
-
-function home() {
-  app.innerHTML = "";
-  const b = el("div", "board");
-  const t = el("p", "title");
-  t.append(el("span", "y", "1分"), "英文法");
-  b.append(t, el("p", "sub", "1回5問。1分で終わるよ。"), el("span", "trial", "試作版"));
-  app.append(b, el("h2", null, "単元をえらぶ"));
-  UNITS.forEach(u => {
-    const btn = el("button", "unit");
-    btn.append(el("b", null, u.name), el("span", null, u.desc), el("span", null, "全" + u.q.length + "問から出題"));
-    btn.onclick = () => begin(u, "main");
-    app.append(btn);
-  });
-  const first = app.querySelector(".unit"); if (first) first.focus();
-}
-
-function begin(u, mode) {
-  const list = mode === "main"
-    ? shuffle(u.q).slice(0, PER_RUN).map(q => ({ tag: q[0], jp: q[1], en: q[2], ans: q[3], opts: shuffle([q[3], q[4]]), note: q[5], key: q[6] }))
-    : shuffle(u.bonus).map(q => {
-        const rest = q[1].filter(o => o !== BOTH);
-        return { tag: "チャレンジ", jp: "", en: q[0], ans: q[2], opts: [...shuffle(rest), ...(q[1].includes(BOTH) ? [BOTH] : [])], note: q[3], key: q[4] };
-      });
-  S = { u, mode, list, i: 0, score: 0 };
-  show();
-}
+let loop = 0; // 動いているゲームの番号（画面を離れたら止める）
+const stopGames = () => { loop++; };
+// 次の描画のタイミングで呼ぶ。描画の合図が来ない環境でも50ミリ秒後には呼ぶ
+const frame = cb => {
+  let done = false;
+  const run = () => { if (!done) { done = true; cb(performance.now()); } };
+  requestAnimationFrame(run);
+  setTimeout(run, 50);
+};
 
 function sentence(en, fill, key) {
   const p = el("p", "en");
-  let [a, b] = en.split("___");
+  const parts = en.split("___");
+  const a = parts[0], b = parts[1];
   const k = key && fill ? a.lastIndexOf(key) : -1;
   if (k >= 0) p.append(a.slice(0, k), el("span", "key", key), a.slice(k + key.length));
   else p.append(a);
   p.append(el("span", "blank", fill || "?"), b);
   return p;
+}
+
+/* ---------- はじめの画面 ---------- */
+function home() {
+  stopGames();
+  app.innerHTML = "";
+  const allDone = UNITS.length > 0 && UNITS.every(complete);
+  const b = el("div", "board" + (allDone ? " gold" : ""));
+  const t = el("p", "title");
+  t.append(el("span", "y", "1分"), "英文法");
+  b.append(t, el("p", "sub", allDone ? "全部の単元をコンプリート！ 黒板のふちが金色になったよ。" : "1回5問。1分で終わるよ。"), el("span", "trial", "試作版"));
+  app.append(b, el("h2", null, "単元をえらぶ"));
+  UNITS.forEach(u => {
+    const done = complete(u), n = gotCount(u);
+    const btn = el("button", "unit" + (done ? " gold" : ""));
+    const name = el("b", null, u.name);
+    if (done) name.append(" ", el("span", "medal", "★コンプリート"));
+    if (done) name.lastChild.style.display = "inline";
+    btn.append(name, el("span", null, u.desc), el("span", null, "問題図鑑 " + n + " / " + u.q.length), bar(n, u.q.length, done));
+    btn.onclick = () => menu(u);
+    app.append(btn);
+  });
+  window.scrollTo(0, 0);
+}
+
+/* ---------- 単元ごとの遊び方 ---------- */
+function menu(u) {
+  stopGames();
+  app.innerHTML = "";
+  app.append(backBtn("単元をえらぶ", home));
+  const done = complete(u);
+  const b = el("div", "board" + (done ? " gold" : ""));
+  b.append(el("p", "title", u.name), el("p", "sub", u.hint));
+  b.firstChild.style.fontSize = "clamp(26px,7.5vw,34px)";
+  app.append(b, el("h2", null, "遊び方をえらぶ"));
+  const modes = [
+    ["ふつう", "5問をじっくり。解説つき。", "", () => begin(u, "main")],
+    ["タイムアタック", TA_SEC + "秒で何問正解できるか。", "最高 " + best(u, "ta") + "問", () => timeAttack(u)],
+    ["シューティング", "正しい語句を撃ち抜け。" + SH_SEC + "秒・ミス" + SH_LIVES + "回まで。", "最高 " + best(u, "sh") + "問", () => shooting(u)],
+    ["問題図鑑", "正解した問題が集まる。全部そろうと金色に。", gotCount(u) + " / " + u.q.length, () => zukan(u)]
+  ];
+  modes.forEach(m => {
+    const btn = el("button", "mode");
+    const left = el("div");
+    left.append(el("b", null, m[0]), el("span", null, m[1]));
+    btn.append(left);
+    if (m[2]) btn.append(el("em", null, m[2]));
+    btn.onclick = m[3];
+    app.append(btn);
+  });
+  window.scrollTo(0, 0);
+}
+
+/* ---------- ふつう・チャレンジ・やり直し ---------- */
+function begin(u, mode, list) {
+  stopGames();
+  let qs;
+  if (mode === "main") qs = shuffle(u.q).slice(0, PER_RUN).map(q => Object.assign({}, q, { opts: shuffle([q.ans, q.wrong]) }));
+  else if (mode === "retry") qs = shuffle(list).map(q => Object.assign({}, q, { opts: shuffle([q.ans, q.wrong]) }));
+  else qs = shuffle(u.bonus).map(q => {
+    const rest = q.choices.filter(o => o !== BOTH);
+    return Object.assign({}, q, { opts: shuffle(rest).concat(q.choices.indexOf(BOTH) >= 0 ? [BOTH] : []) });
+  });
+  S = { u: u, mode: mode, list: qs, i: 0, score: 0, combo: 0, wrongs: [], before: gotCount(u) };
+  show();
 }
 
 function show() {
@@ -117,11 +223,13 @@ function show() {
   const top = el("div", "top");
   const dots = el("div", "dots");
   for (let k = 0; k < n; k++) dots.append(el("i", k < S.i ? "done" : k === S.i ? "now" : ""));
-  top.append(el("span", null, S.u.name + "　" + (S.i + 1) + " / " + n), dots);
+  const label = el("span", null, (S.mode === "bonus" ? "チャレンジ" : S.mode === "retry" ? "やり直し" : S.u.name) + "　" + (S.i + 1) + " / " + n);
+  if (S.combo >= 2) label.append(el("span", "combo", S.combo + "連続！"));
+  top.append(label, dots);
   const b = el("div", "board");
   b.append(el("p", "jp", q.jp || "日本語なし。よく考えてみよう。"), sentence(q.en));
   app.append(top, b);
-  if (S.i === 0) app.append(el("p", "hint", S.mode === "main" ? S.u.hint : S.u.bonusNote));
+  if (S.i === 0) app.append(el("p", "hint", S.mode === "bonus" ? S.u.bonusNote : S.u.hint));
   const opts = el("div", "opts");
   const area = el("div");
   q.opts.forEach(o => {
@@ -130,12 +238,14 @@ function show() {
     opts.append(btn);
   });
   app.append(opts, area);
+  window.scrollTo(0, 0);
 }
 
 function answer(q, pick, opts, b, area) {
   const ok = pick === q.ans;
-  if (ok) S.score++;
-  [...opts.children].forEach(btn => {
+  if (ok) { S.score++; S.combo++; if (S.mode !== "bonus") collect(S.u, q); }
+  else { S.combo = 0; if (S.mode !== "bonus") S.wrongs.push(q); }
+  [].slice.call(opts.children).forEach(btn => {
     btn.disabled = true;
     if (btn.textContent === q.ans) btn.classList.add("right");
     else if (btn.textContent === pick) btn.classList.add("wrong");
@@ -143,7 +253,9 @@ function answer(q, pick, opts, b, area) {
   const fill = q.ans === BOTH ? q.opts.filter(o => o !== BOTH).join(" / ") : q.ans;
   b.replaceChild(sentence(q.en, fill, q.key), b.lastChild);
   const fb = el("div", "fb " + (ok ? "ok" : "ng"));
-  fb.append(el("b", null, ok ? "正解！" : "おしい！ 正解は " + q.ans), el("p", null, q.note));
+  const head = el("b", null, ok ? "正解！" : "おしい！ 正解は " + q.ans);
+  if (ok && S.combo >= 2) head.append(el("span", "combo", S.combo + "連続！"));
+  fb.append(head, el("p", null, q.note));
   const last = S.i === S.list.length - 1;
   const next = el("button", "btn go", last ? "結果を見る" : "次へ");
   next.onclick = () => { if (last) result(); else { S.i++; show(); } };
@@ -152,37 +264,252 @@ function answer(q, pick, opts, b, area) {
   fb.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
-function result() {
-  const n = S.list.length, all = S.score === n, main = S.mode === "main";
-  app.innerHTML = "";
-  const b = el("div", "board");
-  const sc = el("div", "score", String(S.score));
-  sc.append(el("span", null, " / " + n + " 問"));
-  const msg = main
-    ? (all ? "全問正解！ チャレンジ問題に進めるよ。" : S.score >= 3 ? "いい感じ！ もう1回やると、別の問題が出るよ。" : S.u.hint + " もう1回どうぞ。")
-    : (all ? "チャレンジも全問正解！ すごい。" : "チャレンジ問題は難しめ。" + S.u.bonusNote);
-  b.append(el("p", "jp", S.u.name + (main ? "の結果" : "　チャレンジの結果")), sc, el("p", null, msg));
-  app.append(b);
-  const box = el("div");
-  box.style.marginTop = "18px";
-  if (main && all && S.u.bonus && S.u.bonus.length) {
-    const ch = el("button", "btn go", "チャレンジ問題（" + S.u.bonus.length + "問）");
-    ch.onclick = () => begin(S.u, "bonus");
-    box.append(ch);
-  }
-  const again = el("button", "btn " + (main && all ? "ghost" : "go"), "もう1回（5問）");
-  again.onclick = () => begin(S.u, "main");
-  const back = el("button", "btn ghost", "単元をえらぶ");
-  back.onclick = home;
-  box.append(again, back);
+function completeLine(u, before) {
+  return before < u.q.length && complete(u) ? el("p", "medal", "★問題図鑑コンプリート！ この単元が金色になったよ。") : null;
+}
+
+function retryBtn(u, wrongs, label) {
+  if (!wrongs.length) return null;
+  const uniq = wrongs.filter((q, i) => wrongs.indexOf(q) === i);
+  const r = el("button", "btn ghost", (label || "まちがえた問題だけもう1回") + "（" + uniq.length + "問）");
+  r.onclick = () => begin(u, "retry", uniq);
+  return r;
+}
+
+function tail(box, u) {
+  const back = el("button", "btn ghost", "遊び方をえらぶ");
+  back.onclick = () => menu(u);
+  box.append(back);
   if (FEEDBACK_URL) {
     const a = el("a", "btn ghost", "感想を送る（名前は要らないよ）");
     a.href = FEEDBACK_URL; a.target = "_blank"; a.rel = "noopener";
     box.append(a);
-  } else {
-    box.append(el("p", "note", "やってみた感想を、先生に教えてね。"));
+  } else box.append(el("p", "note", "やってみた感想を、先生に教えてね。"));
+}
+
+function result() {
+  const n = S.list.length, all = S.score === n, mode = S.mode;
+  app.innerHTML = "";
+  const b = el("div", "board");
+  const sc = el("div", "score", String(S.score));
+  sc.append(el("span", null, " / " + n + " 問"));
+  const msg = mode === "main"
+    ? (all ? "全問正解！ チャレンジ問題に進めるよ。" : S.score >= 3 ? "いい感じ！ もう1回やると、別の問題が出るよ。" : S.u.hint + " もう1回どうぞ。")
+    : mode === "retry" ? (all ? "全部できた！ もうまちがえないね。" : "あと少し。解説をもう一度読んでみよう。")
+    : (all ? "チャレンジも全問正解！ すごい。" : "チャレンジ問題は難しめ。" + S.u.bonusNote);
+  b.append(el("p", "jp", S.u.name + (mode === "main" ? "の結果" : mode === "retry" ? "　やり直しの結果" : "　チャレンジの結果")), sc, el("p", null, msg));
+  const cl = completeLine(S.u, S.before);
+  if (cl) b.append(cl);
+  app.append(b);
+  const box = el("div");
+  box.style.marginTop = "18px";
+  const u = S.u;
+  if (mode === "main" && all && u.bonus.length) {
+    const ch = el("button", "btn go", "チャレンジ問題（" + u.bonus.length + "問）");
+    ch.onclick = () => begin(u, "bonus");
+    box.append(ch);
   }
+  const r = retryBtn(u, S.wrongs);
+  if (r) { if (!box.children.length) { r.className = "btn go"; r.style.marginTop = "0"; } box.append(r); }
+  const again = el("button", "btn " + (box.children.length ? "ghost" : "go"), "もう1回（5問）");
+  again.onclick = () => begin(u, "main");
+  box.append(again);
+  tail(box, u);
   app.append(box);
+  window.scrollTo(0, 0);
+}
+
+/* ---------- タイムアタック ---------- */
+function timeAttack(u) {
+  stopGames();
+  const id = loop;
+  const T = { pool: [], score: 0, wrongs: [], before: gotCount(u), end: performance.now() + TA_SEC * 1000, lock: false };
+  const nextQ = () => { if (!T.pool.length) T.pool = shuffle(u.q); return T.pool.pop(); };
+  app.innerHTML = "";
+  app.append(backBtn("やめる", () => menu(u)));
+  const hud = el("div", "hud");
+  const tm = el("div", "timer"); const ti = el("i"); tm.append(ti);
+  const scoreEl = el("b", null, "0");
+  const secEl = el("span", null, TA_SEC + "秒");
+  const sw = el("span"); sw.append("正解 ", scoreEl);
+  hud.append(sw, tm, secEl);
+  const b = el("div", "board");
+  const opts = el("div", "opts");
+  app.append(hud, b, opts);
+  let q;
+  const render = () => {
+    q = nextQ();
+    b.innerHTML = "";
+    b.append(el("p", "jp", q.jp), sentence(q.en));
+    opts.innerHTML = "";
+    shuffle([q.ans, q.wrong]).forEach(o => {
+      const btn = el("button", "opt", o);
+      btn.onclick = () => {
+        if (T.lock) return;
+        T.lock = true;
+        const ok = o === q.ans;
+        if (ok) { T.score++; collect(u, q); scoreEl.textContent = T.score; }
+        else T.wrongs.push(q);
+        [].slice.call(opts.children).forEach(x => { if (x.textContent === q.ans) x.classList.add("right"); else if (x === btn) x.classList.add("wrong"); });
+        b.replaceChild(sentence(q.en, q.ans, q.key), b.lastChild);
+        setTimeout(() => { if (id !== loop) return; T.lock = false; render(); }, ok ? 450 : 1000);
+      };
+      opts.append(btn);
+    });
+  };
+  render();
+  const tick = () => {
+    if (id !== loop) return;
+    const left = Math.max(0, T.end - performance.now());
+    ti.style.transform = "scaleX(" + (left / (TA_SEC * 1000)) + ")";
+    secEl.textContent = Math.ceil(left / 1000) + "秒";
+    if (left <= 0) { stopGames(); speedResult(u, "ta", T.score, T.wrongs, T.before); return; }
+    frame(tick);
+  };
+  frame(tick);
+}
+
+/* ---------- シューティング ---------- */
+function shooting(u) {
+  stopGames();
+  const id = loop;
+  const G = { pool: [], score: 0, lives: SH_LIVES, wrongs: [], before: gotCount(u), end: performance.now() + SH_SEC * 1000, words: [], lock: false, combo: 0 };
+  const nextQ = () => { if (!G.pool.length) G.pool = shuffle(u.q); return G.pool.pop(); };
+  app.innerHTML = "";
+  app.append(backBtn("やめる", () => menu(u)));
+  const hud = el("div", "hud");
+  const tm = el("div", "timer"); const ti = el("i"); tm.append(ti);
+  const scoreEl = el("b", null, "0");
+  const sw = el("span"); sw.append("撃破 ", scoreEl);
+  const lifeEl = el("div", "dots");
+  const drawLives = () => { lifeEl.innerHTML = ""; for (let k = 0; k < SH_LIVES; k++) lifeEl.append(el("i", k < G.lives ? "done" : "lost")); };
+  drawLives();
+  hud.append(sw, tm, lifeEl);
+  const b = el("div", "board");
+  b.style.padding = "16px 18px";
+  const field = el("div", "field");
+  app.append(hud, b, field);
+  let q;
+  const speed = () => { const sec = Math.max(3.6, 7 - G.score * 0.25); return field.clientHeight / sec; }; // 1秒あたりに進む距離
+
+  const spawn = () => {
+    q = nextQ();
+    b.innerHTML = "";
+    b.append(el("p", "jp", q.jp), sentence(q.en));
+    b.lastChild.style.fontSize = "clamp(21px,6vw,28px)";
+    field.innerHTML = "";
+    G.words = [];
+    const H = field.clientHeight, W = field.clientWidth;
+    shuffle([q.ans, q.wrong, q.ans, q.wrong]).forEach((w, i) => {
+      const btn = el("button", "word", w);
+      field.append(btn);
+      const o = { el: btn, text: w, x: 0, y: -60 - i * (H / 3.2), alive: true };
+      o.x = Math.random() * Math.max(0, W - btn.offsetWidth);
+      btn.style.transform = "translate(" + o.x + "px," + o.y + "px)";
+      btn.addEventListener("pointerdown", e => { e.preventDefault(); shoot(o); });
+      G.words.push(o);
+    });
+    G.lock = false;
+  };
+
+  const shoot = o => {
+    if (G.lock || !o.alive || id !== loop) return;
+    o.alive = false;
+    if (o.text === q.ans) {
+      G.lock = true;
+      G.score++; G.combo++;
+      scoreEl.textContent = G.score;
+      collect(u, q);
+      o.el.classList.add("hit");
+      b.replaceChild(sentence(q.en, q.ans, q.key), b.lastChild);
+      b.lastChild.style.fontSize = "clamp(21px,6vw,28px)";
+      if (G.combo >= 2) b.firstChild.textContent = q.jp + "　" + G.combo + "連続！";
+      setTimeout(() => { if (id === loop) spawn(); }, 380);
+    } else {
+      G.combo = 0;
+      G.lives--;
+      if (G.wrongs.indexOf(q) < 0) G.wrongs.push(q);
+      o.el.classList.add("miss");
+      drawLives();
+      if (G.lives <= 0) { stopGames(); setTimeout(() => speedResult(u, "sh", G.score, G.wrongs, G.before, "ミスが" + SH_LIVES + "回になったので終了。"), 450); }
+    }
+  };
+
+  spawn();
+  let last = performance.now();
+  const tick = now => {
+    if (id !== loop) return;
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    const H = field.clientHeight, W = field.clientWidth, v = speed();
+    G.words.forEach(o => {
+      if (!o.alive) return;
+      o.y += v * dt;
+      if (o.y > H) { o.y = -60; o.x = Math.random() * Math.max(0, W - o.el.offsetWidth); }
+      o.el.style.transform = "translate(" + o.x + "px," + o.y + "px)";
+    });
+    const left = Math.max(0, G.end - now);
+    ti.style.transform = "scaleX(" + (left / (SH_SEC * 1000)) + ")";
+    if (left <= 0) { stopGames(); speedResult(u, "sh", G.score, G.wrongs, G.before, "時間切れ！"); return; }
+    frame(tick);
+  };
+  frame(tick);
+}
+
+/* ---------- タイムアタック・シューティングの結果 ---------- */
+function speedResult(u, kind, score, wrongs, before, why) {
+  const prev = best(u, kind);
+  const isNew = setBest(u, kind, score) && score > 0;
+  app.innerHTML = "";
+  const b = el("div", "board");
+  const sc = el("div", "score", String(score));
+  sc.append(el("span", null, " 問 正解"));
+  if (isNew) sc.append(el("span", "new", "新記録！"));
+  b.append(el("p", "jp", u.name + "　" + (kind === "ta" ? "タイムアタック" : "シューティング") + "の結果"), sc);
+  if (why) b.append(el("p", null, why));
+  b.append(el("p", null, "この端末での最高記録：" + Math.max(prev, score) + "問"));
+  const cl = completeLine(u, before);
+  if (cl) b.append(cl);
+  app.append(b);
+  const box = el("div");
+  box.style.marginTop = "18px";
+  const again = el("button", "btn go", "もう1回");
+  again.onclick = () => kind === "ta" ? timeAttack(u) : shooting(u);
+  box.append(again);
+  const r = retryBtn(u, wrongs, "まちがえた問題を解説つきで");
+  if (r) box.append(r);
+  tail(box, u);
+  app.append(box);
+  window.scrollTo(0, 0);
+}
+
+/* ---------- 問題図鑑 ---------- */
+function zukan(u) {
+  stopGames();
+  app.innerHTML = "";
+  app.append(backBtn("遊び方をえらぶ", () => menu(u)));
+  const n = gotCount(u), done = complete(u);
+  const b = el("div", "board" + (done ? " gold" : ""));
+  const t = el("p", "title", n + " / " + u.q.length);
+  t.style.fontSize = "clamp(32px,10vw,44px)";
+  b.append(el("p", "jp", u.name + "の問題図鑑"), t, el("p", "sub", done ? "コンプリート！ この単元は金色になったよ。" : "どの遊び方でも、正解した問題がここに集まる。"));
+  b.append(bar(n, u.q.length, done));
+  app.append(b);
+  const list = el("div", "zk");
+  const g = gotList(u);
+  u.q.forEach((q, i) => {
+    const has = g.indexOf(q.id) >= 0;
+    const d = el("div", has ? "" : "not");
+    d.append(el("span", "no", "No." + (i + 1) + "　"));
+    if (has) {
+      const p = el("span", "en2");
+      const parts = q.en.split("___");
+      p.append(parts[0], el("u", null, q.ans), parts[1]);
+      d.append(p, el("div", "jp2", q.jp));
+    } else d.append("？？？");
+    list.append(d);
+  });
+  app.append(list);
+  window.scrollTo(0, 0);
 }
 
 home();
