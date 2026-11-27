@@ -14,14 +14,13 @@
    PICTURE: スタート画面は黒板そのもの。問題中は問題が黒板に書かれる
    COLOUR and TYPE: 黒板の深い緑、チョークの白、黄色いチョークを一色だけ。端末の標準ゴシック（通信なしで動かすため外部フォントは使わない）
    LAYOUT: スマホ1列。親指で押せる大きな選択肢を下に縦に並べる */
-:root{color-scheme:light dark;
-  --bg:light-dark(#f4f1e8,#0f1d17);--board:light-dark(#1f4536,#173528);--chalk:#f3f1ea;
-  --ink:light-dark(#1b2420,#e9eee9);--sub:light-dark(#55605a,#a9b5ad);--line:light-dark(#d6d0bf,#2b4236);
-  --card:light-dark(#fffdf7,#152a20);--yel:#f2c94c;--ok:light-dark(#1f7a4d,#5fd39a);--ng:light-dark(#b0442c,#f08a6e)}
-:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+/* 古いiPhoneのSafariでも色が出るよう、light-dark() は使わない */
+:root{color-scheme:light;--bg:#f4f1e8;--board:#1f4536;--chalk:#f3f1ea;--ink:#1b2420;--sub:#55605a;--line:#d6d0bf;--card:#fffdf7;--yel:#f2c94c;--ok:#1f7a4d;--ng:#b0442c}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#0f1d17;--board:#173528;--ink:#e9eee9;--sub:#a9b5ad;--line:#2b4236;--card:#152a20;--ok:#5fd39a;--ng:#f08a6e}}
+:root[data-theme=dark]{color-scheme:dark;--bg:#0f1d17;--board:#173528;--ink:#e9eee9;--sub:#a9b5ad;--line:#2b4236;--card:#152a20;--ok:#5fd39a;--ng:#f08a6e}
 *{box-sizing:border-box;min-width:0}
 body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 "Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic",Meiryo,system-ui,sans-serif;overflow-x:clip}
-.wrap{max-width:560px;margin:0 auto;padding:16px 16px 40px;min-height:100svh;display:flex;flex-direction:column}
+.wrap{max-width:560px;margin:0 auto;padding:16px 16px 40px;min-height:100vh;min-height:100svh;display:flex;flex-direction:column}
 .board{background:var(--board);color:var(--chalk);border-radius:14px;padding:22px 20px;box-shadow:inset 0 0 0 6px #6b4a2e,inset 0 0 0 8px #3e2a19,0 6px 18px rgba(0,0,0,.18)}
 .title{font-size:clamp(36px,11vw,48px);font-weight:800;line-height:1.1;margin:0}
 .title .y{color:var(--yel)}
@@ -88,7 +87,7 @@ function home() {
     btn.onclick = () => begin(u, "main");
     app.append(btn);
   });
-  app.querySelector(".unit")?.focus();
+  const first = app.querySelector(".unit"); if (first) first.focus();
 }
 
 function begin(u, mode) {
@@ -166,7 +165,7 @@ function result() {
   app.append(b);
   const box = el("div");
   box.style.marginTop = "18px";
-  if (main && all && S.u.bonus?.length) {
+  if (main && all && S.u.bonus && S.u.bonus.length) {
     const ch = el("button", "btn go", "チャレンジ問題（" + S.u.bonus.length + "問）");
     ch.onclick = () => begin(S.u, "bonus");
     box.append(ch);
