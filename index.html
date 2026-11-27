@@ -160,7 +160,7 @@ function home() {
   const b = el("div", "board" + (allDone ? " gold" : ""));
   const t = el("p", "title");
   t.append(el("span", "y", "1分"), "英文法");
-  b.append(t, el("p", "sub", allDone ? "全部の単元をコンプリート！ 黒板のふちが金色になったよ。" : "1回5問。1分で終わるよ。"), el("span", "trial", "試作版"));
+  b.append(t, el("p", "sub", allDone ? "全部の単元をコンプリートしたよ！" : "1回5問。1分で終わるよ。"), el("span", "trial", "試作版"));
   app.append(b, el("h2", null, "単元をえらぶ"));
   UNITS.forEach(u => {
     const done = complete(u), n = gotCount(u);
@@ -265,7 +265,7 @@ function answer(q, pick, opts, b, area) {
 }
 
 function completeLine(u, before) {
-  return before < u.q.length && complete(u) ? el("p", "medal", "★問題図鑑コンプリート！ この単元が金色になったよ。") : null;
+  return before < u.q.length && complete(u) ? el("p", "medal", "★コンプリートしたよ！") : null;
 }
 
 function retryBtn(u, wrongs, label) {
@@ -390,7 +390,7 @@ function shooting(u) {
   const field = el("div", "field");
   app.append(hud, b, field);
   let q;
-  const speed = () => { const sec = Math.max(3.6, 7 - G.score * 0.25); return field.clientHeight / sec; }; // 1秒あたりに進む距離
+  const speed = () => { const sec = Math.max(3.6, 7 - G.score * 0.12); return field.clientHeight / sec; }; // 1秒あたりに進む距離
 
   const spawn = () => {
     q = nextQ();
@@ -491,7 +491,7 @@ function zukan(u) {
   const b = el("div", "board" + (done ? " gold" : ""));
   const t = el("p", "title", n + " / " + u.q.length);
   t.style.fontSize = "clamp(32px,10vw,44px)";
-  b.append(el("p", "jp", u.name + "の問題図鑑"), t, el("p", "sub", done ? "コンプリート！ この単元は金色になったよ。" : "どの遊び方でも、正解した問題がここに集まる。"));
+  b.append(el("p", "jp", u.name + "の問題図鑑"), t, el("p", "sub", done ? "コンプリートしたよ！" : "どの遊び方でも、正解した問題がここに集まる。"));
   b.append(bar(n, u.q.length, done));
   app.append(b);
   const list = el("div", "zk");
