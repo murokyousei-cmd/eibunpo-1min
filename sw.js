@@ -13,7 +13,8 @@ self.addEventListener("fetch", e => {
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);
     const cached = await cache.match(e.request, { ignoreSearch: true });
-    const net = fetch(e.request).then(r => { if (r.ok) cache.put(e.request, r.clone()); return r; });
+    // 端末に残った古い版をつかまないよう、毎回サーバーに新しい版がないか確かめる
+    const net = fetch(e.request.url, { cache: "no-cache" }).then(r => { if (r.ok) cache.put(e.request, r.clone()); return r; });
     if (!cached) return net;
     const timeout = new Promise(res => setTimeout(() => res(cached), 3000));
     return Promise.race([net.catch(() => cached), timeout]);
