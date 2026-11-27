@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>1分英文法</title>
+<meta name="theme-color" content="#1f4536">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+/* VOICE: 授業の最初の5分に先生が黒板に書く一問。軽く、やさしく、急かさない
+   IDEA: 黒板と、そこに書かれた一文
+   PICTURE: スタート画面は黒板そのもの。問題中は問題が黒板に書かれる
+   COLOUR and TYPE: 黒板の深い緑、チョークの白、黄色いチョークを一色だけ。端末の標準ゴシック（通信なしで動かすため外部フォントは使わない）
+   LAYOUT: スマホ1列。親指で押せる大きな選択肢を下に縦に並べる */
+:root{color-scheme:light dark;
+  --bg:light-dark(#f4f1e8,#0f1d17);--board:light-dark(#1f4536,#173528);--chalk:#f3f1ea;
+  --ink:light-dark(#1b2420,#e9eee9);--sub:light-dark(#55605a,#a9b5ad);--line:light-dark(#d6d0bf,#2b4236);
+  --card:light-dark(#fffdf7,#152a20);--yel:#f2c94c;--ok:light-dark(#1f7a4d,#5fd39a);--ng:light-dark(#b0442c,#f08a6e)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 "Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic",Meiryo,system-ui,sans-serif;overflow-x:clip}
+.wrap{max-width:560px;margin:0 auto;padding:16px 16px 40px;min-height:100svh;display:flex;flex-direction:column}
+.board{background:var(--board);color:var(--chalk);border-radius:14px;padding:22px 20px;box-shadow:inset 0 0 0 6px #6b4a2e,inset 0 0 0 8px #3e2a19,0 6px 18px rgba(0,0,0,.18)}
+.title{font-size:clamp(36px,11vw,48px);font-weight:800;line-height:1.1;margin:0}
+.title .y{color:var(--yel)}
+.sub{margin:8px 0 0;opacity:.85;font-size:15px}
+.trial{display:inline-block;margin-top:12px;font-size:13px;border:1px solid rgba(243,241,234,.5);border-radius:4px;padding:1px 8px;opacity:.85}
+h2{font-size:17px;margin:24px 2px 10px;color:var(--sub);font-weight:700}
+.unit{display:block;width:100%;text-align:left;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;font:inherit;cursor:pointer;padding:14px 16px;margin-bottom:10px}
+.unit b{display:block;font-size:20px}
+.unit span{display:block;color:var(--sub);font-size:15px}
+.unit:hover{border-color:var(--yel)}
+.btn{display:block;width:100%;min-height:56px;border:0;border-radius:12px;font:inherit;font-size:19px;font-weight:700;cursor:pointer;padding:12px 16px;text-align:center;text-decoration:none}
+.btn:focus-visible,.opt:focus-visible,.unit:focus-visible{outline:3px solid var(--yel);outline-offset:3px}
+.go{background:var(--yel);color:#1b2420}
+.ghost{background:transparent;color:var(--ink);border:2px solid var(--line);margin-top:10px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;color:var(--sub);font-size:14px;margin:4px 2px 12px}
+.dots{display:flex;gap:6px;flex:none}.dots i{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.dots i.done{background:var(--yel)}.dots i.now{background:var(--ink)}
+.jp{font-size:16px;opacity:.85;margin:0 0 10px}
+.en{font-size:clamp(23px,6.6vw,32px);font-weight:700;line-height:1.4;margin:0}
+.blank{display:inline-block;min-width:4.2em;border-bottom:3px solid var(--yel);text-align:center;color:var(--yel)}
+.key{text-decoration:underline wavy var(--yel);text-underline-offset:6px;text-decoration-thickness:2px}
+.hint{color:var(--sub);font-size:15px;margin:10px 2px 0}
+.opts{display:grid;gap:10px;margin:18px 0 0}
+.opt{min-height:60px;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;font:inherit;font-size:22px;font-weight:700;cursor:pointer;padding:10px 14px}
+.opt.right{border-color:var(--ok);color:var(--ok)}.opt.wrong{border-color:var(--ng);color:var(--ng);text-decoration:line-through}
+.opt:disabled{cursor:default}.opt:disabled:not(.right):not(.wrong){opacity:.45}
+.fb{margin:16px 0 12px;padding:16px;border-radius:12px;background:var(--card);border:2px solid var(--line)}
+.fb b{display:block;font-size:22px;margin-bottom:4px}
+.fb.ok b{color:var(--ok)}.fb.ng b{color:var(--ng)}
+.fb p{margin:0}
+.score{font-size:clamp(44px,14vw,64px);font-weight:800;line-height:1;margin:6px 0 10px}
+.score span{font-size:22px;font-weight:700;opacity:.8}
+.note{color:var(--sub);font-size:14px;margin:14px 2px 0}
+@media(prefers-reduced-motion:no-preference){.fb{animation:up .25s ease-out}@keyframes up{from{opacity:0;transform:translateY(6px)}}}
+</style>
+</head>
+<body>
+<main class="wrap" id="app"></main>
+<!-- 単元を足すときは、units/ にファイルを作ってここに1行足す -->
+<script src="units/bunkei.js"></script>
+<script src="units/kankei-fukushi.js"></script>
+<script>
+{
+const FEEDBACK_URL = ""; // 感想フォームのURLを入れると、結果画面にボタンが出る
+const BOTH = "どっちもOK";
+const PER_RUN = 5;
+const UNITS = window.UNITS || [];
+
+const app = document.getElementById("app");
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+let S = {};
+
+function home() {
+  app.innerHTML = "";
+  const b = el("div", "board");
+  const t = el("p", "title");
+  t.append(el("span", "y", "1分"), "英文法");
+  b.append(t, el("p", "sub", "1回5問。1分で終わるよ。"), el("span", "trial", "試作版"));
+  app.append(b, el("h2", null, "単元をえらぶ"));
+  UNITS.forEach(u => {
+    const btn = el("button", "unit");
+    btn.append(el("b", null, u.name), el("span", null, u.desc), el("span", null, "全" + u.q.length + "問から出題"));
+    btn.onclick = () => begin(u, "main");
+    app.append(btn);
+  });
+  app.querySelector(".unit")?.focus();
+}
+
+function begin(u, mode) {
+  const list = mode === "main"
+    ? shuffle(u.q).slice(0, PER_RUN).map(q => ({ tag: q[0], jp: q[1], en: q[2], ans: q[3], opts: shuffle([q[3], q[4]]), note: q[5], key: q[6] }))
+    : shuffle(u.bonus).map(q => {
+        const rest = q[1].filter(o => o !== BOTH);
+        return { tag: "チャレンジ", jp: "", en: q[0], ans: q[2], opts: [...shuffle(rest), ...(q[1].includes(BOTH) ? [BOTH] : [])], note: q[3], key: q[4] };
+      });
+  S = { u, mode, list, i: 0, score: 0 };
+  show();
+}
+
+function sentence(en, fill, key) {
+  const p = el("p", "en");
+  let [a, b] = en.split("___");
+  const k = key && fill ? a.lastIndexOf(key) : -1;
+  if (k >= 0) p.append(a.slice(0, k), el("span", "key", key), a.slice(k + key.length));
+  else p.append(a);
+  p.append(el("span", "blank", fill || "?"), b);
+  return p;
+}
+
+function show() {
+  const q = S.list[S.i], n = S.list.length;
+  app.innerHTML = "";
+  const top = el("div", "top");
+  const dots = el("div", "dots");
+  for (let k = 0; k < n; k++) dots.append(el("i", k < S.i ? "done" : k === S.i ? "now" : ""));
+  top.append(el("span", null, S.u.name + "　" + (S.i + 1) + " / " + n), dots);
+  const b = el("div", "board");
+  b.append(el("p", "jp", q.jp || "日本語なし。よく考えてみよう。"), sentence(q.en));
+  app.append(top, b);
+  if (S.i === 0) app.append(el("p", "hint", S.mode === "main" ? S.u.hint : S.u.bonusNote));
+  const opts = el("div", "opts");
+  const area = el("div");
+  q.opts.forEach(o => {
+    const btn = el("button", "opt", o);
+    btn.onclick = () => answer(q, o, opts, b, area);
+    opts.append(btn);
+  });
+  app.append(opts, area);
+}
+
+function answer(q, pick, opts, b, area) {
+  const ok = pick === q.ans;
+  if (ok) S.score++;
+  [...opts.children].forEach(btn => {
+    btn.disabled = true;
+    if (btn.textContent === q.ans) btn.classList.add("right");
+    else if (btn.textContent === pick) btn.classList.add("wrong");
+  });
+  const fill = q.ans === BOTH ? q.opts.filter(o => o !== BOTH).join(" / ") : q.ans;
+  b.replaceChild(sentence(q.en, fill, q.key), b.lastChild);
+  const fb = el("div", "fb " + (ok ? "ok" : "ng"));
+  fb.append(el("b", null, ok ? "正解！" : "おしい！ 正解は " + q.ans), el("p", null, q.note));
+  const last = S.i === S.list.length - 1;
+  const next = el("button", "btn go", last ? "結果を見る" : "次へ");
+  next.onclick = () => { if (last) result(); else { S.i++; show(); } };
+  area.append(fb, next);
+  next.focus({ preventScroll: true });
+  fb.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function result() {
+  const n = S.list.length, all = S.score === n, main = S.mode === "main";
+  app.innerHTML = "";
+  const b = el("div", "board");
+  const sc = el("div", "score", String(S.score));
+  sc.append(el("span", null, " / " + n + " 問"));
+  const msg = main
+    ? (all ? "全問正解！ チャレンジ問題に進めるよ。" : S.score >= 3 ? "いい感じ！ もう1回やると、別の問題が出るよ。" : S.u.hint + " もう1回どうぞ。")
+    : (all ? "チャレンジも全問正解！ すごい。" : "チャレンジ問題は難しめ。" + S.u.bonusNote);
+  b.append(el("p", "jp", S.u.name + (main ? "の結果" : "　チャレンジの結果")), sc, el("p", null, msg));
+  app.append(b);
+  const box = el("div");
+  box.style.marginTop = "18px";
+  if (main && all && S.u.bonus?.length) {
+    const ch = el("button", "btn go", "チャレンジ問題（" + S.u.bonus.length + "問）");
+    ch.onclick = () => begin(S.u, "bonus");
+    box.append(ch);
+  }
+  const again = el("button", "btn " + (main && all ? "ghost" : "go"), "もう1回（5問）");
+  again.onclick = () => begin(S.u, "main");
+  const back = el("button", "btn ghost", "単元をえらぶ");
+  back.onclick = home;
+  box.append(again, back);
+  if (FEEDBACK_URL) {
+    const a = el("a", "btn ghost", "感想を送る（名前は要らないよ）");
+    a.href = FEEDBACK_URL; a.target = "_blank"; a.rel = "noopener";
+    box.append(a);
+  } else {
+    box.append(el("p", "note", "やってみた感想を、先生に教えてね。"));
+  }
+  app.append(box);
+}
+
+home();
+// 電波なしで動かすための登録（使えない環境では何もしない）
+try { if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) navigator.serviceWorker.register("sw.js").catch(() => {}); } catch (e) {}
+}
+</script>
+</body>
+</html>
